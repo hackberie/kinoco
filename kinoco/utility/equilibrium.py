@@ -9,6 +9,7 @@ import copy
 import numpy as np
 import pandas as pd
 import matplotlib.ticker as ticker
+import plotly.graph_objects as go
 
 from kinoco.source.matplotlib_condition import plt
 
@@ -284,6 +285,81 @@ class GibbsTriangle:
         self.plot_points_wo_ss()
         # self.plot_labels_wo_ss()
         self.plot_points_ss()
+
+
+class GibbsTrianglePlotly:
+    '''
+    Gibbs Triangle をプロットする
+    '''
+    def __init__(self):
+        self.fig = go.Figure()
+        self.fig.update_layout(
+            plot_bgcolor='rgba(0, 0, 0, 0)',  # プロットエリアの背景を透明に
+            paper_bgcolor='rgba(0, 0, 0, 0)',  # 図全体の背景を透明に
+            scene=dict(
+                xaxis=dict(
+                    showbackground=False,  # x軸の背景を非表示
+                    showticklabels=False,  # x軸の目盛りラベルを非表示
+                    title=''  # x軸のタイトル（文字）を非表示
+                ),
+                yaxis=dict(
+                    showbackground=False,  # y軸の背景を非表示
+                    showticklabels=False,  # y軸の目盛りラベルを非表示
+                    title=''  # y軸のタイトル（文字）を非表示
+                ),
+                zaxis=dict(
+                    # showbackground=False,  # z軸の背景を非表示
+                    # showticklabels=False,  # z軸の目盛りラベルを非表示
+                    title='Tm'  # z軸のタイトル（文字）を非表示
+                ),
+                bgcolor='rgba(0, 0, 0, 0)'  # 3Dシーンの背景を透明に
+            )
+        )
+
+    def plot_line(self, x, y, color='gray', lw=0.5):
+        ''' gibbs triangle の補助線 '''
+        x, y = GibbsTriangle.convert_triangle(x, y)
+        self.fig.add_trace(go.Scatter3d(
+            x=x, y=y, z=[0, 0],  # ここではz=0と仮定
+            mode='lines',
+            line=dict(color=color, width=lw),
+            showlegend=False
+        ))
+
+    def make_frame(self, axis10='', axis01='', axis00=''):
+        for i in range(0, 10):
+            x = np.array([1 - i * 0.1, 0])
+            y = np.array([0, 1 - i * 0.1])
+            self.plot_line(x, y, color='gray', lw=0.5)
+
+            x = np.array([i * 0.1, i * 0.1])
+            y = np.array([0, 1 - i * 0.1])
+            self.plot_line(x, y, color='gray', lw=0.5)
+
+            x = np.array([0, 1 - i * 0.1])
+            y = np.array([i * 0.1, i * 0.1])
+            self.plot_line(x, y, color='gray', lw=0.5)
+
+        # 軸と軸ラベルの非表示
+        self.fig.update_layout(
+            scene=dict(
+                xaxis=dict(showticklabels=False, zeroline=False, showgrid=False),
+                yaxis=dict(showticklabels=False, zeroline=False, showgrid=False),
+                zaxis=dict(showticklabels=False, zeroline=False, showgrid=False)
+            ),
+        )
+
+        # 3D軸にテキストを追加する
+        self.fig.add_trace(go.Scatter3d(
+            x=[0.5, 0, 1], y=[np.sqrt(3)/2, 0, 0], z=[0, 0, 0],
+            mode='text',
+            text=[axis10, axis01, axis00]))
+
+
+    def show(self):
+        self.fig.show()
+
+
 
 
 class BinaryConvexHull:
