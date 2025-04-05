@@ -293,28 +293,6 @@ class GibbsTrianglePlotly:
     '''
     def __init__(self):
         self.fig = go.Figure()
-        self.fig.update_layout(
-            plot_bgcolor='rgba(0, 0, 0, 0)',  # プロットエリアの背景を透明に
-            paper_bgcolor='rgba(0, 0, 0, 0)',  # 図全体の背景を透明に
-            scene=dict(
-                xaxis=dict(
-                    showbackground=False,  # x軸の背景を非表示
-                    showticklabels=False,  # x軸の目盛りラベルを非表示
-                    title=''  # x軸のタイトル（文字）を非表示
-                ),
-                yaxis=dict(
-                    showbackground=False,  # y軸の背景を非表示
-                    showticklabels=False,  # y軸の目盛りラベルを非表示
-                    title=''  # y軸のタイトル（文字）を非表示
-                ),
-                zaxis=dict(
-                    showbackground=False,  # z軸の背景を非表示
-                    showticklabels=True,  # z軸の目盛りラベルを非表示
-                    title='Tm'  # z軸のタイトル（文字）を非表示
-                ),
-                bgcolor='rgba(0, 0, 0, 0)'  # 3Dシーンの背景を透明に
-            )
-        )
 
     @staticmethod
     def convert_triangle(x, y):
@@ -361,6 +339,28 @@ class GibbsTrianglePlotly:
 
 
     def show(self):
+        self.fig.update_layout(
+            plot_bgcolor='rgba(0, 0, 0, 0)',  # プロットエリアの背景を透明に
+            paper_bgcolor='rgba(0, 0, 0, 0)',  # 図全体の背景を透明に
+            scene=dict(
+                xaxis=dict(
+                    showbackground=False,  # x軸の背景を非表示
+                    showticklabels=False,  # x軸の目盛りラベルを非表示
+                    title=''  # x軸のタイトル（文字）を非表示
+                ),
+                yaxis=dict(
+                    showbackground=False,  # y軸の背景を非表示
+                    showticklabels=False,  # y軸の目盛りラベルを非表示
+                    title=''  # y軸のタイトル（文字）を非表示
+                ),
+                zaxis=dict(
+                    showbackground=False,  # z軸の背景を非表示
+                    showticklabels=True,  # z軸の目盛りラベルを非表示
+                    title='Tm'  # z軸のタイトル（文字）を非表示
+                ),
+                bgcolor='rgba(0, 0, 0, 0)'  # 3Dシーンの背景を透明に
+            )
+        )
         self.fig.show()
 
 
