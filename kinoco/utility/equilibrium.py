@@ -308,8 +308,8 @@ class GibbsTrianglePlotly:
                     title=''  # y軸のタイトル（文字）を非表示
                 ),
                 zaxis=dict(
-                    # showbackground=False,  # z軸の背景を非表示
-                    # showticklabels=False,  # z軸の目盛りラベルを非表示
+                    showbackground=False,  # z軸の背景を非表示
+                    showticklabels=True,  # z軸の目盛りラベルを非表示
                     title='Tm'  # z軸のタイトル（文字）を非表示
                 ),
                 bgcolor='rgba(0, 0, 0, 0)'  # 3Dシーンの背景を透明に
