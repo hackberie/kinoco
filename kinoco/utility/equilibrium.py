@@ -316,9 +316,13 @@ class GibbsTrianglePlotly:
             )
         )
 
+    @staticmethod
+    def convert_triangle(x, y):
+        return GibbsTriangle.convert_triangle(x, y)
+
     def plot_line(self, x, y, color='gray', lw=0.5):
         ''' gibbs triangle の補助線 '''
-        x, y = GibbsTriangle.convert_triangle(x, y)
+        x, y = self.convert_triangle(x, y)
         self.fig.add_trace(go.Scatter3d(
             x=x, y=y, z=[0, 0],  # ここではz=0と仮定
             mode='lines',
