@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding:  utf-8 -*-
 """
-共有のグローバル変数を保管。
+データを保管。
 """
 import os
 import pandas as pd
