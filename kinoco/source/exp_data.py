@@ -43,8 +43,11 @@ def read_data_csv(fname):
     return df
 
 def read_data_exp(date, group_num):
-    list_path = glob.glob(os.path.join(module_dir, 'data', date, group_num, '*.CSV'))
-    list_path_xlsx = glob.glob(os.path.join(module_dir, 'data', date, group_num, '*.xlsx'))
+    list_path = glob.glob(os.path.join(
+        module_dir, 'data', date, group_num, '*.CSV'))
+    list_path_xlsx = glob.glob(os.path.join(
+        module_dir, 'data', date, group_num, '*.xlsx'))
+    print(list_path, list_path_xlsx)
     df_raw = pd.read_excel(list_path_xlsx[0], header=None)
     df_raw
     df_map = df_raw.iloc[2:].copy()
