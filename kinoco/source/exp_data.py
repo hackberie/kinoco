@@ -52,8 +52,9 @@ def read_data_exp(date, group_num):
     df_raw
     df_map = df_raw.iloc[2:].copy()
     df_map.columns = ['熱電対番号', '1回目', '2回目']
+    pd.set_option('future.no_silent_downcasting', True)
     df_map.replace('-', pd.NA, inplace=True)
-    df_map = df_map.infer_objects(copy=False)
+    # df_map = df_map.infer_objects(copy=False)
     map_ch_1 = {f'CH{int(row["熱電対番号"])}': f'sample_{int(row["1回目"])}'
                 for i, row in df_map.iterrows()
                 if pd.notna(row['1回目'])}
