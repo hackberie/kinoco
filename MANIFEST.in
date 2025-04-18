@@ -1,1 +1,2 @@
 recursive-include kinoco *.csv
+recursive-include kinoco *.xlsx
