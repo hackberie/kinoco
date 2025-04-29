@@ -13,6 +13,17 @@ from scipy.signal import find_peaks
 from scipy.signal import savgol_filter
 from adjustText import adjust_text
 
+
+from scipy.spatial import Delaunay
+import plotly.graph_objects as go
+from scipy.stats import norm
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import Matern
+from sklearn.gaussian_process.kernels import RBF
+
+
+from kinoco.utility.equilibrium import GibbsTriangle as GT
+from kinoco.utility.equilibrium import GibbsTrianglePlotly as GTP
 from kinoco.source.matplotlib_condition import plt, Cmap
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
@@ -239,6 +250,141 @@ def atomic2mass(n_Bi, n_In, n_Sn):
     w_Sn = mass_Sn/mass_total
     target_total_mass = 5 # (5g)
     return w_Bi*target_total_mass, w_In*target_total_mass, w_Sn*target_total_mass
+
+def predict3d_plotly(src_x, src_y, nu=3/2, alpha=0.005, beta=1.96,
+                         show=True, new_data=[]):
+        """ plotly を使用する """
+        kernel = Matern(nu=nu)
+        gp = GaussianProcessRegressor(kernel=kernel, alpha=alpha,
+                                    n_restarts_optimizer=20, normalize_y=True)
+        gp.fit(src_x, src_y)
+        mesh = 101
+        x = np.linspace(0, 1, mesh)
+        y = np.linspace(0, 1, mesh)
+        xx, yy = np.meshgrid(x, y)
+        xx = xx.flatten()
+        yy = yy.flatten()
+        mask = (xx + yy <= 1.0)
+        xx = xx[mask]
+        yy = yy[mask]
+        zz = 1-xx-yy
+        x_grid = np.c_[xx, yy, zz]
+        y_pred, sigma = gp.predict(x_grid, return_std=True)
+
+        ## 獲得関数 (LCB)
+        y_min = np.min(src_y)  # 既存データの最小値
+        lcb = y_pred - beta * sigma # 信頼度 95%
+        ## LCB が最小の x_grid の値
+        suggest = x_grid[lcb == lcb.min()][0]
+
+        if not show:
+            return suggest, float(y_min - lcb.min())
+
+        gtp = GTP()
+        gtp.make_frame('Bi', 'In', 'Sn')
+
+        x = src_x[:, 0]
+        y = src_x[:, 1]
+        z = src_y
+
+        x, y = GT.convert_triangle(x, y)
+
+        fig_plotly = gtp.fig.add_trace(go.Scatter3d(
+            x=x,
+            y=y,
+            z=z,
+            mode='markers',
+            marker=dict(size=5,
+                        color='blue')
+            )
+        )
+        if len(new_data):
+            dd = new_data
+            x = dd[:, 0]
+            y = dd[:, 1]
+            z = dd[:, 3]
+            x, y = GT.convert_triangle(x, y)
+
+            fig_plotly = gtp.fig.add_trace(go.Scatter3d(
+                x=x,
+                y=y,
+                z=z,
+                mode='markers',
+                marker=dict(size=5,
+                            color='red')
+                )
+            )
+
+        x, y = GT.convert_triangle(xx, yy)
+        # 散らばった点群から三角形をつなぐ
+        # 三角分割法 (できるだけ鋭角ができない三角形で面を張る)
+        triangles = Delaunay(np.column_stack([x, y])).simplices
+
+        fig_plotly = gtp.fig.add_trace(go.Mesh3d(
+            x=x,
+            y=y,
+            z=y_pred,
+            i=triangles[:, 0], j=triangles[:, 1], k=triangles[:, 2],
+            color='cyan',
+            opacity=0.5,
+            )
+        )
+
+        z = y_pred - 1.96 * sigma
+        fig_plotly = gtp.fig.add_trace(go.Mesh3d(
+            x=x,
+            y=y,
+            z=z,
+            i=triangles[:, 0], j=triangles[:, 1], k=triangles[:, 2],
+            opacity=0.5, colorscale='Plotly3', intensity=sigma
+        ))
+
+        z = y_pred + 1.96 * sigma
+        fig_plotly = gtp.fig.add_trace(go.Mesh3d(
+            x=x,
+            y=y,
+            z=z,
+            i=triangles[:, 0], j=triangles[:, 1], k=triangles[:, 2],
+            # color='blue',
+            opacity=0.5, colorscale='Plotly3', intensity=sigma
+        ))
+
+        gtp.fig.update_layout(
+            scene_camera=dict(projection=dict(type="orthographic"))
+        )
+
+        score = y_min - lcb
+        score[score < 0] = 0
+        fig_plotly = gtp.fig.add_trace(go.Mesh3d(
+            x=x,
+            y=y,
+            z=x*0,
+            i=triangles[:, 0], j=triangles[:, 1], k=triangles[:, 2],
+            # color='blue',
+            opacity=0.5, colorscale='Viridis', intensity=score
+        ))
+
+        gtp.fig.update_layout(
+            scene=dict(
+                xaxis=dict(
+                    title='',
+                    type='linear',  # 線形スケールを指定
+                    range=[0, 1]  # x軸の範囲を設定
+                ),
+                yaxis=dict(
+                    title='',
+                    type='linear',  # 線形スケールを指定
+                    range=[0, 1]  # y軸の範囲を設定
+                )))
+
+
+        gtp.show()
+
+        just = y_pred[lcb == lcb.min()][0]
+        err = sigma[lcb == lcb.min()][0]
+        predict = {'just': just, 'upper': just+err, 'lower': just-err}
+
+        return suggest, float(y_min - lcb.min()), predict
 
 
 # 読み込み
