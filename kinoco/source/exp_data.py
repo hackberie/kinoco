@@ -168,6 +168,40 @@ def plot_cooling_curve_smooth(pd_dataframe, data_name, wo_plot=False):
         plt.close()
     return yyyy[peaks[0]]
 
+def plot_all_data(df):
+    """
+    全データの可視化
+    sample_** のデータを表示する
+    """
+    samples = [x for x in df.columns if 'sample_' in x]
+    nn = len(samples)
+    midle = round(nn/2) - 1
+    vv = midle+1
+
+    fig, axes = plt.subplots(vv, 2, figsize=(10, vv/2*5), 
+                             constrained_layout=True)
+    axes = axes.T.reshape(-1)
+    data_tm = []
+    for i in range(nn):
+        print(f'sample_{i+1}')
+        plt.sca(axes[i])
+        tm = plot_cooling_curve_smooth(df, f'sample_{i+1}')
+        data_tm.append({'sample': f'sample_{i+1}', 'T_m': tm})
+        plt.sca(axes[i])
+        plt.ylabel(f'$T (℃)$')
+        plt.ylim(0, 300)
+        if (not i == midle) and (not i == 2*midle+1):
+          axes[i].set_xticklabels([])
+          plt.xlabel('')
+        plt.xlim(0, 1000)
+
+    plt.sca(axes[-1])
+    plt.xlim(0, 1000)
+    plt.ylim(0, 300)
+    plt.xlabel('Time (s)')
+
+    data_tm = pd.DataFrame(data_tm)
+    return data_tm
 
 
 
