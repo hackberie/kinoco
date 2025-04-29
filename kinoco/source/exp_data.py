@@ -49,6 +49,7 @@ def read_data_csv(fname):
     df[ch_cols] = df[ch_cols].apply(pd.to_numeric, errors='coerce')
     return df
 
+
 def read_data_exp(date, group_num):
     list_path = glob.glob(os.path.join(
         module_dir, 'data', date, group_num, '*.CSV'))
@@ -91,29 +92,6 @@ def read_data_exp(date, group_num):
     df_final = df_merged_by_time[final_columns]
 
     return df_final
-
-# 読み込み
-exp_data = {}
-dates = ['250415']
-groups = ['group1', 'group2']
-
-for dd in dates:
-    for gg in groups:
-        exp_data.update({f'{dd}_{gg}': read_data_exp(dd, gg)})
-
-# 読み込み
-exp_data_tm = {}
-dates = ['250415']
-groups = ['group1', 'group2']
-for dd in dates:
-    for i, gg in enumerate(groups):
-        df = pd.read_csv(
-                os.path.join(module_dir, 'data', dd, gg, f'data_tm{i+1}.csv'))
-        x_Bi, x_In, x_Sn = mass2atomic(df['w_Bi'], df['w_In'], df['w_Sn'])
-        df['x_Bi'] = x_Bi
-        df['x_In'] = x_In
-        df['x_Sn'] = x_Sn
-        exp_data_tm.update({f'{dd}_{gg}': df})
 
 
 def plot_cooling_curve_smooth(pd_dataframe, data_name, wo_plot=False):
@@ -218,7 +196,6 @@ def plot_cooling_curve_all_data(df):
     return data_tm
 
 
-
 def mass2atomic(mass_Bi, mass_In, mass_Sn):
     M_Bi = 208.98
     M_In = 114.82
@@ -262,3 +239,27 @@ def atomic2mass(n_Bi, n_In, n_Sn):
     w_Sn = mass_Sn/mass_total
     target_total_mass = 5 # (5g)
     return w_Bi*target_total_mass, w_In*target_total_mass, w_Sn*target_total_mass
+
+
+# 読み込み
+exp_data = {}
+dates = ['250415']
+groups = ['group1', 'group2']
+
+for dd in dates:
+    for gg in groups:
+        exp_data.update({f'{dd}_{gg}': read_data_exp(dd, gg)})
+
+# 読み込み
+exp_data_tm = {}
+dates = ['250415']
+groups = ['group1', 'group2']
+for dd in dates:
+    for i, gg in enumerate(groups):
+        df = pd.read_csv(
+                os.path.join(module_dir, 'data', dd, gg, f'data_tm{i+1}.csv'))
+        x_Bi, x_In, x_Sn = mass2atomic(df['w_Bi'], df['w_In'], df['w_Sn'])
+        df['x_Bi'] = x_Bi
+        df['x_In'] = x_In
+        df['x_Sn'] = x_Sn
+        exp_data_tm.update({f'{dd}_{gg}': df})
