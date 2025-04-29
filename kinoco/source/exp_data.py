@@ -254,6 +254,9 @@ def atomic2mass(n_Bi, n_In, n_Sn):
 def predict3d_plotly(src_x, src_y, nu=3/2, alpha=0.005, beta=1.96,
                          show=True, new_data=[]):
         """ plotly を使用する """
+        if len(new_data):
+            src_x = np.r_[src_x, new_data[:, :3]]
+            src_y = np.r_[src_y, new_data[:, -1]]
         kernel = Matern(nu=nu)
         gp = GaussianProcessRegressor(kernel=kernel, alpha=alpha,
                                     n_restarts_optimizer=20, normalize_y=True)
