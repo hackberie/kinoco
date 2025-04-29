@@ -107,10 +107,13 @@ dates = ['250415']
 groups = ['group1', 'group2']
 for dd in dates:
     for i, gg in enumerate(groups):
-        exp_data_tm.update(
-            {f'{dd}_{gg}': pd.read_csv(
-                os.path.join(module_dir, 'data', dd, gg, f'data_tm{i+1}.csv'))})
-
+        df = pd.read_csv(
+                os.path.join(module_dir, 'data', dd, gg, f'data_tm{i+1}.csv'))
+        x_Bi, x_In, x_Sn = mass2atomic(df['w_Bi'], df['w_In'], df['w_Sn'])
+        df['x_Bi'] = x_Bi
+        df['x_In'] = x_In
+        df['x_Sn'] = x_Sn
+        exp_data_tm.update({f'{dd}_{gg}': df})
 
 
 def plot_cooling_curve_smooth(pd_dataframe, data_name, wo_plot=False):
