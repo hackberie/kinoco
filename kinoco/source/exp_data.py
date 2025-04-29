@@ -205,7 +205,6 @@ def plot_cooling_curve_all_data(df):
 
 
 
-# 【指示：修正してコードを完成させること】
 def mass2atomic(mass_Bi, mass_In, mass_Sn):
     M_Bi = 208.98
     M_In = 114.82
@@ -219,3 +218,33 @@ def mass2atomic(mass_Bi, mass_In, mass_Sn):
     x_Sn = n_Sn/n_total
     return x_Bi, x_In, x_Sn
   
+
+def mass2atomic(mass_Bi, mass_In, mass_Sn):
+    M_Bi = 208.98
+    M_In = 114.82
+    M_Sn = 118.71
+    n_Bi = mass_Bi / M_Bi
+    n_In = mass_In / M_In
+    n_Sn = mass_Sn / M_Sn
+    n_total = n_Bi + n_In + n_Sn
+    x_Bi = n_Bi/n_total
+    x_In = n_In/n_total
+    x_Sn = n_Sn/n_total
+    return x_Bi, x_In, x_Sn
+  
+def atomic2mass(n_Bi, n_In, n_Sn):
+    M_Bi = 208.98
+    M_In = 114.82
+    M_Sn = 118.71
+
+    mass_Bi = n_Bi * M_Bi
+    mass_In = n_In * M_In
+    mass_Sn = n_Sn * M_Sn
+
+    mass_total = mass_Bi + mass_In + mass_Sn
+
+    w_Bi = mass_Bi/mass_total
+    w_In = mass_In/mass_total
+    w_Sn = mass_Sn/mass_total
+    target_total_mass = 5 # (5g)
+    return w_Bi*target_total_mass, w_In*target_total_mass, w_Sn*target_total_mass
