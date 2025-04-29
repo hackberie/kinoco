@@ -387,7 +387,9 @@ def predict3d_plotly(src_x, src_y, nu=3/2, alpha=0.005, beta=1.96,
 
         just = y_pred[lcb == lcb.min()][0]
         err = sigma[lcb == lcb.min()][0]
-        predict = {'just': just, 'upper': just+err, 'lower': just-err}
+        predict = {'just': float(just), 
+                   'upper': float(just+err), 
+                   'lower': float(just-err)}
 
         return suggest, float(y_min - lcb.min()), predict
 
