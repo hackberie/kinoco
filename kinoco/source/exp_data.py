@@ -280,8 +280,14 @@ def predict3d_plotly(src_x, src_y, nu=3/2, alpha=0.005, beta=1.96,
         ## LCB が最小の x_grid の値
         suggest = x_grid[lcb == lcb.min()][0]
 
+        just = y_pred[lcb == lcb.min()][0]
+        err = sigma[lcb == lcb.min()][0]
+        predict = {'just': float(just), 
+                   'upper': float(just+err), 
+                   'lower': float(just-err)}
+
         if not show:
-            return suggest, float(y_min - lcb.min())
+            return suggest, float(y_min - lcb.min()), predict
 
         gtp = GTP()
         gtp.make_frame('Bi', 'In', 'Sn')
