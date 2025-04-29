@@ -116,7 +116,7 @@ def plot_cooling_curve_smooth(pd_dataframe, data_name, wo_plot=False):
     yyy = y[x > xx[0]]
     xxxx = xxx[yyy < 250]
     original = xxxx[0]
-    xxxx = xxxx - xxxx[0] # 初期値を 0 に
+    xxxx = xxxx - original # 初期値を 0 に
     yyyy = yyy[yyy < 250]
 
     dTdt = savgol_filter(yyyy, window_length=51, polyorder=3, deriv=1, delta=1)
@@ -126,16 +126,17 @@ def plot_cooling_curve_smooth(pd_dataframe, data_name, wo_plot=False):
     for pp in peaks:
         if dTdt[pp] < 0:
             new_peaks.append(pp)
-        continue
-    local_y = dTdt[pp:pp+30]
-    local_x = xxxx[pp:pp+30]
-    ## 0 に近いところを探す
-    dTdt0 = local_y[
-        (local_y)**2 == ((local_y)**2).min()][0]
-    new_peaks.append(xxxx[dTdt == dTdt0][0])
+            continue
+        local_y = dTdt[pp:pp+30]
+        local_x = xxxx[pp:pp+30]
+        ## 0 に近いところを探す
+        dTdt0 = local_y[
+            (local_y)**2 == ((local_y)**2).min()][0]
+        new_peaks.append(xxxx[dTdt == dTdt0][0])
     peaks = np.array(new_peaks)
     if not wo_plot:
-        print(f"ピーク位置の時間 original (sec)： {', '.join(map(str, xxxx[peaks]+original))}")
+        print(
+            f"ピーク位置の時間 original (sec)： {', '.join(map(str, xxxx[peaks]+original))}")
         print(f"ピーク位置の時間 (sec)： {', '.join(map(str, xxxx[peaks]))}")
         print(f"ピーク位置の温度 (℃)： {', '.join(map(str, yyyy[peaks]))}")
     plt.plot(xxxx, yyyy, label=data_name)
