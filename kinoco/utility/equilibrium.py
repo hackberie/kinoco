@@ -335,7 +335,8 @@ class GibbsTrianglePlotly:
         self.fig.add_trace(go.Scatter3d(
             x=[0.5, 0, 1], y=[np.sqrt(3)/2, 0, 0], z=[0, 0, 0],
             mode='text',
-            text=[axis10, axis01, axis00]))
+            text=[axis10, axis01, axis00]),
+            showlegend = False)
 
 
     def show(self):
