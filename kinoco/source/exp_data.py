@@ -400,10 +400,16 @@ for dd in dates:
 exp_data_tm = {}
 dates = ['250415']
 groups = ['group1', 'group2']
+df_pure = [{'w_Bi':5, 'w_In':0, 'w_Sn':0, 'T_m': 271.4, 'sample': 'sample_Bi'},
+           {'w_Bi':0, 'w_In':5, 'w_Sn':0, 'T_m': 156.6, 'sample': 'sample_In'},
+           {'w_Bi':0, 'w_In':0, 'w_Sn':5, 'T_m': 231.9, 'sample': 'sample_Sn'}]
+df_pure = pd.DataFrame(df_pure)
 for dd in dates:
     for i, gg in enumerate(groups):
         df = pd.read_csv(
                 os.path.join(module_dir, 'data', dd, gg, f'data_tm{i+1}.csv'))
+        pd = pd.concat([df, df_pure])
+
         x_Bi, x_In, x_Sn = mass2atomic(df['w_Bi'], df['w_In'], df['w_Sn'])
         df['x_Bi'] = x_Bi
         df['x_In'] = x_In
