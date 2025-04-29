@@ -403,6 +403,23 @@ def predict3d_plotly(src_x, src_y, nu=3/2, alpha=0.005, beta=1.96,
         return suggest, float(y_min - lcb.min()), predict
 
 
+def set_atomic(df_orig):
+    df = df_orig.copy()
+    x_Bi, x_In, x_Sn = mass2atomic(df['w_Bi'], df['w_In'], df['w_Sn'])
+    df['x_Bi'] = x_Bi
+    df['x_In'] = x_In
+    df['x_Sn'] = x_Sn
+    return df
+
+def set_mass(df_orig):
+    df = df_orig.copy()
+    w_Bi, w_In, w_Sn = atomic2mass(df['x_Bi'], df['x_In'], df['x_Sn'])
+    df['w_Bi'] = w_Bi
+    df['w_In'] = w_In
+    df['w_Sn'] = w_Sn
+    return df
+
+
 # 読み込み
 exp_data = {}
 dates = ['250415']
@@ -425,9 +442,5 @@ for dd in dates:
         df = pd.read_csv(
                 os.path.join(module_dir, 'data', dd, gg, f'data_tm{i+1}.csv'))
         df = pd.concat([df, df_pure])
-
-        x_Bi, x_In, x_Sn = mass2atomic(df['w_Bi'], df['w_In'], df['w_Sn'])
-        df['x_Bi'] = x_Bi
-        df['x_In'] = x_In
-        df['x_Sn'] = x_Sn
+        df = set_atomic(df)
         exp_data_tm.update({f'{dd}_{gg}': df})
