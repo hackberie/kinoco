@@ -168,7 +168,7 @@ def plot_cooling_curve_smooth(pd_dataframe, data_name, wo_plot=False):
         plt.close()
     return yyyy[peaks[0]]
 
-def plot_all_data(df):
+def plot_cooling_curve_all_data(df):
     """
     全データの可視化
     sample_** のデータを表示する
