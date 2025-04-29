@@ -101,6 +101,17 @@ for dd in dates:
     for gg in groups:
         exp_data.update({f'{dd}_{gg}': read_data_exp(dd, gg)})
 
+# 読み込み
+exp_data_tm = {}
+dates = ['250415']
+groups = ['group1', 'group2']
+for dd in dates:
+    for i, gg in enumerate(groups):
+        exp_data_tm.update(
+            {f'{dd}_{gg}': pd.read_csv(
+                os.path.join(dd, gg, f'data_tm{i}.csv'))})
+
+
 
 def plot_cooling_curve_smooth(pd_dataframe, data_name, wo_plot=False):
     x = pd_dataframe['Time'].values # .values は ndarray に変換
