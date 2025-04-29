@@ -109,7 +109,7 @@ for dd in dates:
     for i, gg in enumerate(groups):
         exp_data_tm.update(
             {f'{dd}_{gg}': pd.read_csv(
-                os.path.join(dd, gg, f'data_tm{i+1}.csv'))})
+                os.path.join(module_dir, 'data', dd, gg, f'data_tm{i+1}.csv'))})
 
 
 
