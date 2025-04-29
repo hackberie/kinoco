@@ -7,7 +7,13 @@ import os
 import re
 from functools import reduce
 import glob
+import numpy as np
 import pandas as pd
+from scipy.signal import find_peaks
+from scipy.signal import savgol_filter
+from adjustText import adjust_text
+
+from kinoco.source.matplotlib_condition import plt, Cmap
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -36,7 +42,8 @@ def read_data_csv(fname):
     df.rename(columns=new_columns, inplace=True)
     # Time列の文字列→数値変換 (変換できるものだけ)
     if 'Time' in df.columns:
-        df['Time'] = pd.to_numeric(df['Time'], errors='coerce').astype('Int64')  # 欠損にも対応
+        # 欠損にも対応
+        df['Time'] = pd.to_numeric(df['Time'], errors='coerce').astype('Int64')  
     # CH列を float に変換（BURNOUT などに対応）
     ch_cols = [col for col in df.columns if col.startswith('CH')]
     df[ch_cols] = df[ch_cols].apply(pd.to_numeric, errors='coerce')
@@ -95,17 +102,85 @@ for dd in dates:
         exp_data.update({f'{dd}_{gg}': read_data_exp(dd, gg)})
 
 
+def plot_cooling_curve_smooth(pd_dataframe, data_name, wo_plot=False):
+    x = pd_dataframe['Time'].values # .values は ndarray に変換
+    y = pd_dataframe[data_name].values # .values は ndarray に変換
+
+    mask = ~np.isnan(y)
+    x = x[mask]
+    y = y[mask]
+
+    yy = y[y == y.max()]
+    xx = x[y == y.max()]
+    xxx = x[x > xx[0]]
+    yyy = y[x > xx[0]]
+    xxxx = xxx[yyy < 250]
+    original = xxxx[0]
+    xxxx = xxxx - xxxx[0] # 初期値を 0 に
+    yyyy = yyy[yyy < 250]
+
+    dTdt = savgol_filter(yyyy, window_length=51, polyorder=3, deriv=1, delta=1)
+    peaks, _ = find_peaks(dTdt, prominence=0.01, distance=50)
+
+    new_peaks = []
+    for pp in peaks:
+        if dTdt[pp] < 0:
+            new_peaks.append(pp)
+        continue
+    local_y = dTdt[pp:pp+30]
+    local_x = xxxx[pp:pp+30]
+    ## 0 に近いところを探す
+    dTdt0 = local_y[
+        (local_y)**2 == ((local_y)**2).min()][0]
+    new_peaks.append(xxxx[dTdt == dTdt0][0])
+    peaks = np.array(new_peaks)
+    if not wo_plot:
+        print(f"ピーク位置の時間 original (sec)： {', '.join(map(str, xxxx[peaks]+original))}")
+        print(f"ピーク位置の時間 (sec)： {', '.join(map(str, xxxx[peaks]))}")
+        print(f"ピーク位置の温度 (℃)： {', '.join(map(str, yyyy[peaks]))}")
+    plt.plot(xxxx, yyyy, label=data_name)
+
+    c1, c2 = Cmap.get_pair_my_tab()
+    texts = []
+    for i, ppp in enumerate(peaks):
+        plt.plot(xxxx[ppp], yyyy[ppp], 'x')
+        texts.append(plt.text(xxxx[ppp], yyyy[ppp]+5,
+                              s=yyyy[ppp], size=15, color=c2[i+1]))
+    adjust_text(texts, only_move={'points':'none', 'texts':'xy'})
+
+    plt.xlabel('Time (s)')
+    plt.ylabel('Temperature (℃)')
+
+    ## 現在の axis を習得 (get carrent axis)
+    ax1 = plt.gca()
+    ## 右側の y 軸を使ったプロットに変更 (twinx:ダブルy軸にする)
+    ax2 = ax1.twinx()
+    plt.plot(xxxx, dTdt, color=c2[1], label=r'$dT/dt$')
+    ax1.set_zorder(ax2.get_zorder() + 1)
+    ax1.patch.set_visible(False)
+    plt.ylim(-2, 10)
+    plt.ylabel(r'$dT/dt$ (℃/s)')
+    lines1, labels1 = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper right')
+    if wo_plot:
+        plt.close()
+    return yyyy[peaks[0]]
+
+
+
+
 # 【指示：修正してコードを完成させること】
 def mass2atomic(mass_Bi, mass_In, mass_Sn):
-  M_Bi = 208.98
-  M_In = 114.82
-  M_Sn = 118.71
-  n_Bi = mass_Bi / M_Bi
-  n_In = mass_In / M_In
-  n_Sn = mass_Sn / M_Sn
-  n_total = n_Bi + n_In + n_Sn
-  x_Bi = n_Bi/n_total
-  x_In = n_In/n_total
-  x_Sn = n_Sn/n_total
-  return x_Bi, x_In, x_Sn
+    M_Bi = 208.98
+    M_In = 114.82
+    M_Sn = 118.71
+    n_Bi = mass_Bi / M_Bi
+    n_In = mass_In / M_In
+    n_Sn = mass_Sn / M_Sn
+    n_total = n_Bi + n_In + n_Sn
+    x_Bi = n_Bi/n_total
+    x_In = n_In/n_total
+    x_Sn = n_Sn/n_total
+    return x_Bi, x_In, x_Sn
   
