@@ -408,7 +408,7 @@ for dd in dates:
     for i, gg in enumerate(groups):
         df = pd.read_csv(
                 os.path.join(module_dir, 'data', dd, gg, f'data_tm{i+1}.csv'))
-        df = df.concat([df, df_pure])
+        df = pd.concat([df, df_pure])
 
         x_Bi, x_In, x_Sn = mass2atomic(df['w_Bi'], df['w_In'], df['w_Sn'])
         df['x_Bi'] = x_Bi
