@@ -338,7 +338,8 @@ def predict3d_plotly(src_x, src_y, nu=3/2, alpha=0.005, beta=1.96,
             y=y,
             z=z,
             i=triangles[:, 0], j=triangles[:, 1], k=triangles[:, 2],
-            opacity=0.5, colorscale='Plotly3', intensity=sigma
+            opacity=0.5, colorscale='Plotly3', intensity=sigma,
+            colorbar=dict(show=False)
         ))
 
         z = y_pred + 1.96 * sigma
@@ -348,7 +349,8 @@ def predict3d_plotly(src_x, src_y, nu=3/2, alpha=0.005, beta=1.96,
             z=z,
             i=triangles[:, 0], j=triangles[:, 1], k=triangles[:, 2],
             # color='blue',
-            opacity=0.5, colorscale='Plotly3', intensity=sigma
+            opacity=0.5, colorscale='Plotly3', intensity=sigma,
+            colorbar=dict(show=False)
         ))
 
         gtp.fig.update_layout(
@@ -363,7 +365,8 @@ def predict3d_plotly(src_x, src_y, nu=3/2, alpha=0.005, beta=1.96,
             z=x*0,
             i=triangles[:, 0], j=triangles[:, 1], k=triangles[:, 2],
             # color='blue',
-            opacity=0.5, colorscale='Viridis', intensity=score
+            opacity=0.5, colorscale='Viridis', intensity=score,
+            colorbar=dict(show=False)
         ))
 
         gtp.fig.update_layout(
