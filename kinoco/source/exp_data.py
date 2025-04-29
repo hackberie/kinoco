@@ -295,7 +295,8 @@ def predict3d_plotly(src_x, src_y, nu=3/2, alpha=0.005, beta=1.96,
             z=z,
             mode='markers',
             marker=dict(size=5,
-                        color='blue')
+                        color='blue'),
+            showlegend = False
             )
         )
         if len(new_data):
