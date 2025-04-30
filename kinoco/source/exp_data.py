@@ -422,7 +422,7 @@ def set_mass(df_orig):
 
 # 読み込み
 exp_data = {}
-dates = ['250415']
+dates = ['250415', '250416']
 groups = ['group1', 'group2']
 
 for dd in dates:
