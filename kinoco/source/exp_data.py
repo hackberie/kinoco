@@ -107,8 +107,9 @@ def read_data_exp(date, group_num):
 
 def plot_cooling_curve_smooth(pd_dataframe, data_name, wo_plot=False):
     x = pd_dataframe['Time'].values # .values は ndarray に変換
-    y = pd_dataframe[data_name].values # .values は ndarray に変換
-
+    # y = pd_dataframe[data_name].values # .values は ndarray に変換
+    # 文字列にも対応
+    y = pd.to_numeric(pd_dataframe[data_name], errors='coerce').values
     mask = ~np.isnan(y)
     x = x[mask]
     y = y[mask]
@@ -434,7 +435,6 @@ for dd in dates:
         exp_data.update({f'{dd}_{gg}': read_data_exp(dd, gg)})
 
 # 読み込み group_D
-exp_data = {}
 dates = ['250520']
 groups = ['group1', 'group2']
 
