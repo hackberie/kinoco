@@ -446,7 +446,7 @@ for dd in dates:
 
 # 読み込み
 exp_data_tm = {}
-dates = ['250415']
+dates = ['250415', '250520']
 groups = ['group1', 'group2']
 df_pure = [{'w_Bi':5, 'w_In':0, 'w_Sn':0, 'T_m': 271.4, 'sample': 'sample_Bi'},
            {'w_Bi':0, 'w_In':5, 'w_Sn':0, 'T_m': 156.6, 'sample': 'sample_In'},
