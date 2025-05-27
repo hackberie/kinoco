@@ -435,7 +435,7 @@ for dd in dates:
 
 # 読み込み group_D
 exp_data = {}
-dates = ['250420']
+dates = ['250520']
 groups = ['group1', 'group2']
 
 for dd in dates:
