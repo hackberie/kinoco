@@ -137,7 +137,7 @@ def plot_cooling_curve_smooth(pd_dataframe, data_name, wo_plot=False):
         dTdt0 = local_y[
             (local_y)**2 == ((local_y)**2).min()][0]
         new_peaks.append(xxxx[dTdt == dTdt0][0])
-    peaks = np.array(new_peaks)
+    peaks = np.array(new_peaks, dtype=int)
     if not wo_plot:
         print(
             f"ピーク位置の時間 original (sec)： {', '.join(map(str, xxxx[peaks]+original))}")
