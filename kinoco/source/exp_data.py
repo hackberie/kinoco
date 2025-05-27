@@ -441,7 +441,7 @@ groups = ['group1', 'group2']
 for dd in dates:
     for gg in groups:
         fname = glob.glob(os.path.join(module_dir, 'data', dd, gg, 
-                                       'Group_D_*.CSV'))[0]
+                                       'Group_D_*.csv'))[0]
         exp_data.update({f'{dd}_{gg}': pd.read_csv(fname)})
 
 # 読み込み
