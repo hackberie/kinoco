@@ -448,9 +448,12 @@ for dd in dates:
 exp_data_tm = {}
 dates = ['250415', '250520']
 groups = ['group1', 'group2']
-df_pure = [{'w_Bi':5, 'w_In':0, 'w_Sn':0, 'T_m': 271.4, 'sample': 'sample_Bi'},
-           {'w_Bi':0, 'w_In':5, 'w_Sn':0, 'T_m': 156.6, 'sample': 'sample_In'},
-           {'w_Bi':0, 'w_In':0, 'w_Sn':5, 'T_m': 231.9, 'sample': 'sample_Sn'}]
+df_pure = [{'w_Bi':5, 'w_In':0, 'w_Sn':0, 
+            'T_m_script': 271.4, 'T_m_excel': 271.4, 'sample': 'sample_Bi'},
+           {'w_Bi':0, 'w_In':5, 'w_Sn':0, 
+            'T_m_script': 156.6, 'T_m_excel': 156.6, 'sample': 'sample_In'},
+           {'w_Bi':0, 'w_In':0, 'w_Sn':5, 
+            'T_m_script': 231.9, 'T_m_excel': 231.9, 'sample': 'sample_Sn'}]
 df_pure = pd.DataFrame(df_pure)
 for dd in dates:
     for i, gg in enumerate(groups):
