@@ -171,6 +171,7 @@ def plot_cooling_curve_smooth(pd_dataframe, data_name, wo_plot=False):
         plt.close()
     return yyyy[peaks[0]]
 
+
 def plot_cooling_curve_all_data(df):
     """
     全データの可視化
@@ -234,6 +235,7 @@ def mass2atomic(mass_Bi, mass_In, mass_Sn):
     x_Sn = n_Sn/n_total
     return x_Bi, x_In, x_Sn
   
+
 def atomic2mass(n_Bi, n_In, n_Sn):
     M_Bi = 208.98
     M_In = 114.82
@@ -251,51 +253,70 @@ def atomic2mass(n_Bi, n_In, n_Sn):
     target_total_mass = 5 # (5g)
     return w_Bi*target_total_mass, w_In*target_total_mass, w_Sn*target_total_mass
 
-def predict3d_plotly(src_x, src_y, nu=3/2, alpha=0.005, beta=1.96,
-                         show=True, new_data=[]):
-        """ plotly を使用する """
-        if len(new_data):
-            src_x = np.r_[src_x, new_data[:, :3]]
-            src_y = np.r_[src_y, new_data[:, -1]]
-        kernel = Matern(nu=nu)
-        gp = GaussianProcessRegressor(kernel=kernel, alpha=alpha,
-                                    n_restarts_optimizer=20, normalize_y=True)
-        gp.fit(src_x, src_y)
-        mesh = 101
-        x = np.linspace(0, 1, mesh)
-        y = np.linspace(0, 1, mesh)
-        xx, yy = np.meshgrid(x, y)
-        xx = xx.flatten()
-        yy = yy.flatten()
-        mask = (xx + yy <= 1.0)
-        xx = xx[mask]
-        yy = yy[mask]
-        zz = 1-xx-yy
-        x_grid = np.c_[xx, yy, zz]
-        y_pred, sigma = gp.predict(x_grid, return_std=True)
 
-        ## 獲得関数 (LCB)
-        y_min = np.min(src_y)  # 既存データの最小値
-        lcb = y_pred - beta * sigma # 信頼度 95%
-        ## LCB が最小の x_grid の値
-        suggest = x_grid[lcb == lcb.min()][0]
+def predict3d_plotly(
+    src_x, src_y, nu=3/2, alpha=0.005, beta=1.96,
+    show=True, new_data=[]):
+    """ plotly を使用する """
+    if len(new_data):
+        src_x = np.r_[src_x, new_data[:, :3]]
+        src_y = np.r_[src_y, new_data[:, -1]]
+    kernel = Matern(nu=nu)
+    gp = GaussianProcessRegressor(kernel=kernel, alpha=alpha,
+                                n_restarts_optimizer=20, normalize_y=True)
+    gp.fit(src_x, src_y)
+    mesh = 101
+    x = np.linspace(0, 1, mesh)
+    y = np.linspace(0, 1, mesh)
+    xx, yy = np.meshgrid(x, y)
+    xx = xx.flatten()
+    yy = yy.flatten()
+    mask = (xx + yy <= 1.0)
+    xx = xx[mask]
+    yy = yy[mask]
+    zz = 1-xx-yy
+    x_grid = np.c_[xx, yy, zz]
+    y_pred, sigma = gp.predict(x_grid, return_std=True)
 
-        just = y_pred[lcb == lcb.min()][0]
-        err = sigma[lcb == lcb.min()][0]
-        predict = {'just': float(just), 
-                   'upper': float(just+err), 
-                   'lower': float(just-err)}
+    ## 獲得関数 (LCB)
+    y_min = np.min(src_y)  # 既存データの最小値
+    lcb = y_pred - beta * sigma # 信頼度 95%
+    ## LCB が最小の x_grid の値
+    suggest = x_grid[lcb == lcb.min()][0]
 
-        if not show:
-            return suggest, float(y_min - lcb.min()), predict
+    just = y_pred[lcb == lcb.min()][0]
+    err = sigma[lcb == lcb.min()][0]
+    predict = {'just': float(just), 
+               'upper': float(just+err), 
+               'lower': float(just-err)}
 
-        gtp = GTP()
-        gtp.make_frame('Bi', 'In', 'Sn')
+    if not show:
+        return suggest, float(y_min - lcb.min()), predict
 
-        x = src_x[:, 0]
-        y = src_x[:, 1]
-        z = src_y
+    gtp = GTP()
+    gtp.make_frame('Bi', 'In', 'Sn')
 
+    x = src_x[:, 0]
+    y = src_x[:, 1]
+    z = src_y
+
+    x, y = GT.convert_triangle(x, y)
+
+    fig_plotly = gtp.fig.add_trace(go.Scatter3d(
+        x=x,
+        y=y,
+        z=z,
+        mode='markers',
+        marker=dict(size=5,
+                    color='blue'),
+        showlegend = False
+        )
+    )
+    if len(new_data):
+        dd = new_data
+        x = dd[:, 0]
+        y = dd[:, 1]
+        z = dd[:, 3]
         x, y = GT.convert_triangle(x, y)
 
         fig_plotly = gtp.fig.add_trace(go.Scatter3d(
@@ -304,103 +325,86 @@ def predict3d_plotly(src_x, src_y, nu=3/2, alpha=0.005, beta=1.96,
             z=z,
             mode='markers',
             marker=dict(size=5,
-                        color='blue'),
+                        color='red'),
             showlegend = False
             )
         )
-        if len(new_data):
-            dd = new_data
-            x = dd[:, 0]
-            y = dd[:, 1]
-            z = dd[:, 3]
-            x, y = GT.convert_triangle(x, y)
 
-            fig_plotly = gtp.fig.add_trace(go.Scatter3d(
-                x=x,
-                y=y,
-                z=z,
-                mode='markers',
-                marker=dict(size=5,
-                            color='red'),
-                showlegend = False
-                )
-            )
+    x, y = GT.convert_triangle(xx, yy)
+    # 散らばった点群から三角形をつなぐ
+    # 三角分割法 (できるだけ鋭角ができない三角形で面を張る)
+    triangles = Delaunay(np.column_stack([x, y])).simplices
 
-        x, y = GT.convert_triangle(xx, yy)
-        # 散らばった点群から三角形をつなぐ
-        # 三角分割法 (できるだけ鋭角ができない三角形で面を張る)
-        triangles = Delaunay(np.column_stack([x, y])).simplices
-
-        fig_plotly = gtp.fig.add_trace(go.Mesh3d(
-            x=x,
-            y=y,
-            z=y_pred,
-            i=triangles[:, 0], j=triangles[:, 1], k=triangles[:, 2],
-            color='cyan',
-            opacity=0.5,
-            )
+    fig_plotly = gtp.fig.add_trace(go.Mesh3d(
+        x=x,
+        y=y,
+        z=y_pred,
+        i=triangles[:, 0], j=triangles[:, 1], k=triangles[:, 2],
+        color='cyan',
+        opacity=0.5,
         )
+    )
 
-        z = y_pred - 1.96 * sigma
-        fig_plotly = gtp.fig.add_trace(go.Mesh3d(
-            x=x,
-            y=y,
-            z=z,
-            i=triangles[:, 0], j=triangles[:, 1], k=triangles[:, 2],
-            opacity=0.5, colorscale='Plotly3', intensity=sigma,
-            showscale=False 
-        ))
+    z = y_pred - 1.96 * sigma
+    fig_plotly = gtp.fig.add_trace(go.Mesh3d(
+        x=x,
+        y=y,
+        z=z,
+        i=triangles[:, 0], j=triangles[:, 1], k=triangles[:, 2],
+        opacity=0.5, colorscale='Plotly3', intensity=sigma,
+        showscale=False 
+    ))
 
-        z = y_pred + 1.96 * sigma
-        fig_plotly = gtp.fig.add_trace(go.Mesh3d(
-            x=x,
-            y=y,
-            z=z,
-            i=triangles[:, 0], j=triangles[:, 1], k=triangles[:, 2],
-            # color='blue',
-            opacity=0.5, colorscale='Plotly3', intensity=sigma,
-            showscale=False 
-        ))
+    z = y_pred + 1.96 * sigma
+    fig_plotly = gtp.fig.add_trace(go.Mesh3d(
+        x=x,
+        y=y,
+        z=z,
+        i=triangles[:, 0], j=triangles[:, 1], k=triangles[:, 2],
+        # color='blue',
+        opacity=0.5, colorscale='Plotly3', intensity=sigma,
+        showscale=False 
+    ))
 
-        gtp.fig.update_layout(
-            scene_camera=dict(projection=dict(type="orthographic"))
-        )
+    gtp.fig.update_layout(
+        scene_camera=dict(projection=dict(type="orthographic"))
+    )
 
-        score = y_min - lcb
-        score[score < 0] = 0
-        fig_plotly = gtp.fig.add_trace(go.Mesh3d(
-            x=x,
-            y=y,
-            z=x*0,
-            i=triangles[:, 0], j=triangles[:, 1], k=triangles[:, 2],
-            # color='blue',
-            opacity=0.5, colorscale='Viridis', intensity=score,
-            # showscale=False 
-        ))
+    score = y_min - lcb
+    score[score < 0] = 0
+    fig_plotly = gtp.fig.add_trace(go.Mesh3d(
+        x=x,
+        y=y,
+        z=x*0,
+        i=triangles[:, 0], j=triangles[:, 1], k=triangles[:, 2],
+        # color='blue',
+        opacity=0.5, colorscale='Viridis', intensity=score,
+        # showscale=False 
+    ))
 
-        gtp.fig.update_layout(
-            scene=dict(
-                xaxis=dict(
-                    title='',
-                    type='linear',  # 線形スケールを指定
-                    range=[0, 1]  # x軸の範囲を設定
-                ),
-                yaxis=dict(
-                    title='',
-                    type='linear',  # 線形スケールを指定
-                    range=[0, 1]  # y軸の範囲を設定
-                )))
+    gtp.fig.update_layout(
+        scene=dict(
+            xaxis=dict(
+                title='',
+                type='linear',  # 線形スケールを指定
+                range=[0, 1]  # x軸の範囲を設定
+            ),
+            yaxis=dict(
+                title='',
+                type='linear',  # 線形スケールを指定
+                range=[0, 1]  # y軸の範囲を設定
+            )))
 
 
-        gtp.show()
+    gtp.show()
 
-        just = y_pred[lcb == lcb.min()][0]
-        err = sigma[lcb == lcb.min()][0]
-        predict = {'just': float(just), 
-                   'upper': float(just+err), 
-                   'lower': float(just-err)}
+    just = y_pred[lcb == lcb.min()][0]
+    err = sigma[lcb == lcb.min()][0]
+    predict = {'just': float(just), 
+               'upper': float(just+err), 
+               'lower': float(just-err)}
 
-        return suggest, float(y_min - lcb.min()), predict
+    return suggest, float(y_min - lcb.min()), predict
 
 
 def set_atomic(df_orig):
@@ -420,14 +424,24 @@ def set_mass(df_orig):
     return df
 
 
-# 読み込み
+# 読み込み group_A
 exp_data = {}
-dates = ['250415', '250416']
+dates = ['250415']
 groups = ['group1', 'group2']
 
 for dd in dates:
     for gg in groups:
         exp_data.update({f'{dd}_{gg}': read_data_exp(dd, gg)})
+
+# 読み込み group_D
+exp_data = {}
+dates = ['250420']
+groups = ['group1', 'group2']
+
+for dd in dates:
+    for gg in groups:
+        fname = glob.glob(os.path.join(dd, gg, 'Group_D_*.CSV'))[0]
+        exp_data.update({f'{dd}_{gg}': pd.read_csv(fname)})
 
 # 読み込み
 exp_data_tm = {}
@@ -444,3 +458,6 @@ for dd in dates:
         df = pd.concat([df, df_pure])
         df = set_atomic(df)
         exp_data_tm.update({f'{dd}_{gg}': df})
+
+# 読み込み group_B
+# exp_data = 
