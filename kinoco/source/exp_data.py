@@ -455,6 +455,16 @@ for dd in dates:
                                        'Group_C_*.csv'))[0]
         exp_data.update({f'{dd}_{gg}': pd.read_csv(fname)})
 
+# 読み込み group_B
+dates = ['250624']
+groups = ['group1', 'group2']
+
+for dd in dates:
+    for gg in groups:
+        fname = glob.glob(os.path.join(module_dir, 'data', dd, gg, 
+                                       'Team1_*.csv'))[0]
+        exp_data.update({f'{dd}_{gg}': pd.read_csv(fname)})
+
 
 # 読み込み
 exp_data_tm = {}
