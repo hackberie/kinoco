@@ -497,5 +497,16 @@ for dd in dates:
         df = set_atomic(df)
         exp_data_tm.update({f'{dd}_{gg}': df})
 
+dd = '260421'
+gg = 'groupA'
+df = pd.read_csv(
+        os.path.join(module_dir, 'data', dd, gg, f'data_tm1.csv'))
+df = pd.concat([df, df_pure])
+df = set_atomic(df)
+exp_data_tm.update({f'{dd}_{gg}': df})
+
+
+
+
 # 読み込み group_B
 # exp_data = 
