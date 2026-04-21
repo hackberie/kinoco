@@ -425,8 +425,20 @@ def set_mass(df_orig):
     return df
 
 
-# 読み込み group_A
 exp_data = {}
+
+
+dates = ['260421']
+groups = ['groupA']
+
+for dd in dates:
+    for gg in groups:
+        fname = glob.glob(os.path.join(module_dir, 'data', dd, gg, 
+                                       'data.csv'))[0]
+        exp_data.update({f'{dd}_{gg}': pd.read_csv(fname)})
+
+
+# 読み込み group_A
 dates = ['250415']
 groups = ['group1', 'group2']
 
@@ -443,6 +455,8 @@ for dd in dates:
         fname = glob.glob(os.path.join(module_dir, 'data', dd, gg, 
                                        'Group_D_*.csv'))[0]
         exp_data.update({f'{dd}_{gg}': pd.read_csv(fname)})
+
+
 
 
 # 読み込み group_C
