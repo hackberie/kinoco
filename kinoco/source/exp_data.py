@@ -428,14 +428,6 @@ def set_mass(df_orig):
 exp_data = {}
 
 
-dates = ['260421']
-groups = ['groupA']
-
-for dd in dates:
-    for gg in groups:
-        fname = glob.glob(os.path.join(module_dir, 'data', dd, gg, 
-                                       'data.csv'))[0]
-        exp_data.update({f'{dd}_{gg}': pd.read_csv(fname)})
 
 
 # 読み込み group_A
@@ -497,6 +489,18 @@ for dd in dates:
         df = set_atomic(df)
         exp_data_tm.update({f'{dd}_{gg}': df})
 
+### FY26
+
+dates = ['260421']
+groups = ['groupA']
+
+for dd in dates:
+    for gg in groups:
+        fname = glob.glob(os.path.join(module_dir, 'data', dd, gg, 
+                                       'data.csv'))[0]
+        exp_data.update({f'{dd}_{gg}': pd.read_csv(fname)})
+
+
 dd = '260421'
 gg = 'groupA'
 df = pd.read_csv(
@@ -505,6 +509,24 @@ df = pd.concat([df, df_pure])
 df = set_atomic(df)
 exp_data_tm.update({f'{dd}_{gg}': df})
 
+
+dates = ['260512']
+groups = ['groupD', 'gropuD_orig']
+
+for dd in dates:
+    for gg in groups:
+        fname = glob.glob(os.path.join(module_dir, 'data', dd, gg, 
+                                       'data.csv'))[0]
+        exp_data.update({f'{dd}_{gg}': pd.read_csv(fname)})
+
+
+# dd = '260421'
+# gg = 'groupA'
+# df = pd.read_csv(
+#         os.path.join(module_dir, 'data', dd, gg, f'data_tm1.csv'))
+# df = pd.concat([df, df_pure])
+# df = set_atomic(df)
+# exp_data_tm.update({f'{dd}_{gg}': df})
 
 
 
