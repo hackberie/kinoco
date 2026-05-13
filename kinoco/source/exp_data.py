@@ -511,7 +511,7 @@ exp_data_tm.update({f'{dd}_{gg}': df})
 
 
 dates = ['260512']
-groups = ['groupD', 'groupD_orig']
+groups = ['GroupD', 'GroupD_orig']
 
 
 for dd in dates:
