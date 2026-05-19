@@ -521,7 +521,7 @@ for dd in dates:
         exp_data.update({f'{dd}_{gg}': pd.read_csv(fname)})
 
 dd = '260512'
-gg = 'groupD'
+gg = 'GroupD'
 df = pd.read_csv(
         os.path.join(module_dir, 'data', dd, gg, f'data_tm1.csv'))
 df = pd.concat([df, df_pure])
