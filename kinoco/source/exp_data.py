@@ -529,7 +529,7 @@ df = set_atomic(df)
 exp_data_tm.update({f'{dd}_{gg}': df})
 
 dates = ['260602']
-groups = ['GroupD']
+groups = ['GroupC']
 
 for dd in dates:
     for gg in groups:
