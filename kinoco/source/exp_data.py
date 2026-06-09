@@ -528,6 +528,15 @@ df = pd.concat([df, df_pure])
 df = set_atomic(df)
 exp_data_tm.update({f'{dd}_{gg}': df})
 
+dates = ['260602']
+groups = ['GroupD']
+
+for dd in dates:
+    for gg in groups:
+        fname = glob.glob(os.path.join(module_dir, 'data', dd, gg, 
+                                       'data.csv'))[0]
+        exp_data.update({f'{dd}_{gg}': pd.read_csv(fname)})
+
 
 
 # dd = '260421'
